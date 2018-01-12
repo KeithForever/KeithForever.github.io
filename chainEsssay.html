@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<title>BBB</title>
+<link rel="stylesheet" href="https://www.w3schools.com/lib/w3.css">
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+html,body,h1,h2,h3,h4,h5,h6 {font-family: Inconsolata, 'Menlo', Consolas, Courier New, Courier;}
+
+p {
+  color: #5a5b5c;
+}
+h6 {
+ color: #f7931a;
+}
+</style>
+
+<body>
+  <div class="w3-content" style="max-width:1400px;">
+    <div class="w3-row">
+      <div class="w3-container w3-padding-18 w3-margin-top w3-center">
+        <h3 id="chapter1" style="color:#586e75">------ Chapter 1: Bitcoin protocol in the abstract ------</h3>
+      </div>
+    </div>
+    <div class="w3-row">
+      <div class="w3-quarter">
+        <div class="w3-container w3-center">
+          <p style="color:#e0e1e4"><i>This page is basically my notes on understanding bitcoin. It may contain errors and will be added to as I read and learn more. These ideas are not my own, only combined and rewritten. Sources at bottom of page.</i></p>
+          <p><i>Contents</i></p>
+          <a href="index.html"<p style="font-size:11px"><u>Home Page</u></p></a>
+          <a href="#chapter1"<p style="font-size:11px"><u>Chapter 1</u></p></a>
+          <a href="#chapter2"<p style="font-size:11px"><u>Chapter 2</u></p></a>
+          <a href="#chapter3"<p style="font-size:11px"><u>Chapter 3</u></p></a>
+          <a href="#links"<p style="font-size:11px"><u>Links</u></p></a>
+        </div>
+      </div>
+      <div class="w3-half">
+        <div class="w3-container w3-right">
+          <h6>A signed letter of intent ------</h6>
+          <p>This writeup assumes general knowledge of public key cryptography, digital signatures, and cryptographic hashing.
+          Suppose you want to send someone else a string of bits, this information is going to be our digital currency.
+          To send the currency you have to digitally sign the information you are sending with a private cryptographic key.
+          Then you announce this signed information to the world.
+          People can then use your public key to verify that it really was you that signed that message.
+          With this signature, no one else could have created this message of information.</p>
+
+          <h6>Using serial numbers to make coins uniquely identifiable ------</h6>
+          <p>To solve the problem of repeated or duplicate coins we have to make the messages of information we are sending unique.
+          Now the messages we are signing contain a serial number that is visible to everyone.
+          To make this work we need a trusted source of serial numbers for our messages.
+          To do this we need a "bank". Our bank would: provide serial numbers, keep track of who has which messages, and verify transaction of messages.
+          When you send this message of information to another user they must check that: the message and serial number that you are sending is actually yours, and that you haven't already sent that message.
+          The "bank" then updates the record to show that this message with its unique serial number now is in the other persons possession.</p>
+
+          <h6>Making everyone the bank ------</h6>
+          <p>We don't need a central "bank" to keep this record and verify transactions of messages.
+          Everyone individually keeps the complete record of every transaction and who has every single message.
+          This is a shared public ledger and it is called the blockchain.
+          Everyone can check that the messages of information they receive is the senders message to give.
+          Once they accept their message they then broadcast it out to the entire network and everyone updates their copy of the blockchain.
+          We then have to solve the issue of double spending, or sending, a message.
+          You could send the same message with the same serial number to two different people. If there is not enough time to update everyones blockchain they both people could accept the transaction, not knowing someone else already did.
+          To solve this problem we use don't verify transaction by ourselves. We rely on others on our network to help.
+          You would broadcast the possible message transaction to the entire network. Then once enough people verify the transaction and broadcast the message that it can be transferred then everyone updates their blockchains to show that the original message transaction is complete.</p>
+
+          <h6>Proof-of-work ------</h6>
+          <p>At this point there is still a way to double send a unique message.
+          Using enough fake users on the network that you control you could use them to declare a transaction valid when it really isn't.
+          To solve this problem we use a concept called proof-of-work.
+          Proof-of-work consists of two ideas: artificially make it computationally costly for users to validate transactions on the network; and to reward users for trying to validate transactions.
+          The reward makes it worth it for people to validate transactions now that we made it difficult to do so.
+          Making it costly to validate a transaction makes sure that validation of a message cannot be influenced by the number of users one person controls.
+          Now it is only possible to double spend by using a massive amount of computing power, which is impractical.</p>
+
+          <h6>The details of proof-of-work ------</h6>
+            <p>When you broadcast a message with a unique serial number to the network other people hear it and the transaction is then added to a queue of pending transactions that they've been told about but haven't been approved by the network.
+            Others users can see if the transaction is valid by checking their copy of the blockchain.
+            But before they broadcast it back to the network they must complete a computational puzzle, the proof-of-work.
+            Now into meat of the puzzle: h is a fixed hash function that is known by everyone in the network. In bitcoin this is the SHA-256 hash function.
+            The queue of pending transaction is given label l.
+            We then need to append a number x (called the nonce) to l and hash the combination.
+            The proof-of-work (or puzzle) you have to solve is to find a nonce x such that when we append x to l and hash it we get a certain output.
+            This output must begin with a long run of consecutive zeros.
+            The proof-of-work gets more difficult based on the amount of zeros required to solve the puzzle.
+            What makes this very difficult to solve is that fact that the output of a hash function behaves like a random number. Its almost impossible to predict the output based on the input.</p>
+
+          <p>This puzzle is challenging but it is possible to control its difficulty.
+          In bitcoin the protocol has fine control over the difficulty and using a slight variation on the proof-of-work puzzle.
+          Instead of requiring a certain amount of leading zeros, the bitcoin protocol requires the hash of a block's header to be lower than or equal to a number called the target.
+          The target number is automatically adjusted to ensure a bitcoin block takes around 10 minutes to validate.</p>
+
+          <p>Suppose you find a nonce that fits these new proof-of-work rules.
+          You then broadcast the block of transactions you approved to the network, together with the value of x.
+          Other users on the network can verify that your nonce x value is actually the solution.
+          Then everyone updates their blockchains to include the new block of transactions.
+          For proof-of-work to work network users must get rewards to validate transactions and solve these puzzles.
+          People who validate a block of transactions are rewarded with bitcoins. This is called mining.
+          Initially the successful miner was rewarded with 50 bitcoins.
+          For every 210,000 validated blocks of messages the reward halves.
+          Bitcoin also uses a minimal transaction fee to keep the incentive when the reward halves to the lowest possible amount.
+          Proof-of-work is a competition to approve transactions.
+          Even with the computational requirement in  proof-of-work there is still a very small chance for double spending to occur, which can be fixed.</p>
+
+          <p>We need to know the order of the block in our blockchain.
+          Without this order it would be difficult to see who owns which message.
+          To do this every new block must contain a pointer to the last block validated in the chain.
+          The block also includes a list of transactions in the block.
+          The pointer is actually just a hash of the previous block.</p>
+
+          <h6>Forks ------</h6>
+            <p>If two miners happen to validate a block of transactions near-simultaneously and broadcast each new block to the network, some people will update their chain for one block and other people will update their chain for the other block.
+            This is called a fork.
+            Because of this fork it is unclear what order transactions have occurred, which is what we are trying to avoid.
+            If a fork occurs, people on the network keep track of both forks.
+            But miners only work to extend which ever fork is longest in their copy of the blockchain.
+            Whichever block gets mined first on either side of the fork now becomes the new real continuation of the blockchain.
+            Everyones blockchain is now updated with this information and everyone is now back on the same linear chain.
+            The side of the fork that is not the first to be extended will cease and no future blocks will point to it.
+            In bitcoin, a transaction is not considered confirmed until: it is part of a block in the longest fork, and at least 5 blocks follow it in the longest fork.
+            This gives the network some time to come to an agreed upon ordering of block.</p>
+          </div>
+        </div>
+        <div class="w3-quarter">
+          <div class="w3-container w3-center">
+            <p> </p>
+          </div>
+        </div>
+    </div>
+    <div class="w3-row">
+      <div class="w3-container w3-padding-18 w3-margin-top w3-center">
+        <h3 id="chapter2" style="color:#586e75">------ Chapter 2: Bitcoin in practice ------</h3>
+      </div>
+    </div>
+    <div class="w3-row">
+      <div class="w3-quarter">
+        <div class="w3-container w3-center">
+          <p> </p>
+        </div>
+      </div>
+      <div class="w3-half">
+        <div class="w3-container w3-right">
+        <h6>Wallets and addresses ------</h6>
+          <p>To use bitcoin in the real world and actually send and receive these messages of information you first install a wallet program.
+          You then need an address so people can send you coins.
+          From now on I am referring to messages of information with a unique serial number as coins or bitcoins. Because thats all bitcoin is.
+          Next step would be to get a bitcoin address so people can send you coins and you can receive them.
+          Your wallet program will generate and address by creating your public/private key pair.
+          The public key is then hashed to create your bitcoin address.
+          Lets say someone wants to send you some bitcoin.
+          This person would then generate a transaction which consists of several elements.
+          In order it consists of:
+          The transaction identifier, which is the hash of the remainder of the transaction expressed in hex.
+          The version of the bitcoin protocol.
+          The amount of inputs in the transaction.
+          The amount of outputs in the transaction.
+          The time in which the transaction is set to finalize. Usually set to 0 so it finalizes immediately.
+          The size of the transaction in bytes.
+          The input definition of the transaction:
+            Which includes the output of an earlier transaction the input is take from, with the give hash in hex.
+            It also includes the number of outputs from that earlier transaction.
+            Finally it includes the signature of the person sending the money, and the corresponding public key. Both in hex.
+          The output definition of the transaction:
+            Which includes the value of the output in bitcoin.
+            The bitcoin address of the intended recipient in hex but written in bitcoins scripting language.</p>
+
+          <p>So going back to the idea of unique serial numbers for every message or "coin/unit of currency".
+          This serial number is actually just the transaction hash.
+          By hashing the transaction serial numbers are self-generated without the need for a central bank to issue them.
+          This also a central part of the idea of an organized open ledger of transaction that everyone owns.
+          In bitcoin there are not any separate "coins" at all, just a long series of transaction in the blockchain.
+          Every transaction input is connected to the output of a previous transaction, which you can follow back in history until you reach a start point.
+          There are two different start points in the transaction chain.
+          One would be that you reach the Genesis block, a special transaction that has no inputs which established an initial money supply containing 50 bitcoins.
+          The second would be you reach a so-called coin-base transaction.
+          This is the transaction rewarding the miner who validated that block of transactions.
+          It is similar but not identical to the Genesis block but the specifics aren't mentioned here.</p>
+
+        <h6>Transactions with multiple inputs and outputs ------</h6>
+          <p>In practice, bitcoin transactions with single inputs and outputs aren't really used.
+          It is more practical to use multiple inputs and outputs.
+          This is important in the monetary idea of change.
+          If you want to send a fraction of the bitcoins you received in an earlier transaction you must specify this new transaction to have multiple outputs.
+          You send some of the bitcoin to its intended recipient and the rest, the change, to your bitcoin address.
+          This way you can break down the denomination of bitcoin you want to send.
+          Like giving a 20 dollar bill to buy a loaf of bread and getting a 15 dollars back.
+          But in the case of bitcoin, the other person never receives the whole 20 dollars so you don't have to worry about getting your change back.</p>
+        </div>
+      </div>
+      <div class="w3-quarter">
+        <div class="w3-container w3-center">
+          <p> </p>
+        </div>
+      </div>
+  </div>
+  <div class="w3-row">
+    <div class="w3-container w3-padding-18 w3-margin-top w3-center">
+      <h3 id="chapter3" style="color:#586e75">------ Chapter 3: Programming a digital currency ------</h3>
+    </div>
+  </div>
+  <div class="w3-row">
+    <div class="w3-quarter">
+      <div class="w3-container w3-center">
+        <p> </p>
+      </div>
+    </div>
+    <div class="w3-half">
+      <div class="w3-container w3-right">
+        <h6>Thinking in Transaction Scripts ------</h6>
+          <p>This chapter is going to be a overview and continuation on how transactions work but on a basic programming level.</p>
+
+
+        <p id="links">Links used:</p>
+        <p>http://www.michaelnielsen.org/ddi/how-the-bitcoin-protocol-actually-works/</p>
+        <p>https://github.com/jashmenn/bitcoin-reading-list</p>
+        </div>
+      </div>
+      <div class="w3-quarter">
+        <div class="w3-container w3-center">
+          <p> </p>
+        </div>
+      </div>
+    </div>
+
+
+
+</div>
+</body>
+</html>
